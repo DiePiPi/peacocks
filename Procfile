@@ -1,1 +1,1 @@
-web: gunicorn pipihome.wsgi --log-file -
+web: gunicorn peacocks.wsgi --log-file -
