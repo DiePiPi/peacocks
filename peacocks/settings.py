@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'vpc8g#afqx0-4kxk(c$ptlaxr&_7_fp=e$5ir^2svxrd_mg_8j'
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.environ['LOCAL_SERVER_ON']=='1':
@@ -121,4 +121,34 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+#STATIC_URL = '/static/'
+
+###
+# The following will store statics on s3 bucket
+# ANd store media file on s3 buckets
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_STATIC_BUCKET_NAME = os.environ.get('AWS_STATIC_BUCKET_NAME')
+AWS_PRELOAD_METADATA = True  # You want this to be on!
+AWS_QUERYSTRING_AUTH = False
+
+# all files are stored in one bucket
+# statics and media are in two different folders
+AWS_URL = os.environ.get('AWS_URL')
+AWS_S3_CUSTOM_DOMAIN = '{0}/{1}'.format(AWS_URL,AWS_STORAGE_BUCKET_NAME)
+
+
+STATICFILES_LOCATION = 'static'
+MEDIAFILES_LOCATION = 'media'
+
+# this is a hack to use a different storage for statics
+# and media files
+import custom_storages
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+
+STATIC_URL = "https://%s/%s/%s/" % (AWS_URL, AWS_STORAGE_BUCKET_NAME, STATICFILES_LOCATION)
+MEDIA_URL = "https://%s/%s/%s/" % (AWS_URL, AWS_STORAGE_BUCKET_NAME, MEDIAFILES_LOCATION)
